@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscyun.Oss.mapper.CatalogueMapper">
+    <resultMap id="CatalogueResult" type="com.zscyun.Oss.entity.Catalogue">
+        <result property="id" column="id"/>
+        <result property="catalogueId" column="catalogue_id"/>
+        <result property="name" column="name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="picNumber" column="pic_number"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="delete_time"/>
+    </resultMap>
+    <resultMap id="CatalogueTableResult" type="com.zscyun.Oss.entity.CatalogueTable">
+        <result property="key" column="key"/>
+        <result property="name" column="name"/>
+        <result property="count" column="count"/>
+        <result property="catalogueId" column="catalogue_id"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <resultMap id="PicTableResult" type="com.zscyun.Oss.entity.PicTable">
+        <result property="key" column="id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="catalogueId" column="catalogue_id"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="status" column="status"/>
+        <result property="type" column="type"/>
+        <result property="size" column="size"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <insert id="insertCatalogue" parameterType="com.zscyun.Oss.entity.Catalogue">
+        insert into t_catalogue (catalogue_id, name, parent_id, pic_number, status, create_time)
+        values (#{catalogueId}, #{name}, #{parentId}, 0, #{status}, sysdate())
+    </insert>
+    <select id="selectCatalogue" parameterType="Long" resultMap="CatalogueResult">
+        select *
+        from t_catalogue
+        where catalogue_id = #{catalogueId}
+          and status = 1
+    </select>
+    <select id="selectCatalogues" parameterType="Long" resultMap="CatalogueResult">
+        select *
+        from t_catalogue
+        where parent_id = #{parentId}
+          and status = 1
+    </select>
+    <update id="updateCatalogue" parameterType="com.zscyun.Oss.entity.Catalogue">
+        update t_catalogue
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="picNumber != -1 and picNumber != null">pic_number = #{picNumber}</if>
+        </set>
+        where catalogue_id=#{catalogueId}
+    </update>
+    <select id="selectAlbumTables" parameterType="Long" resultMap="CatalogueTableResult">
+        select id         as 'key',
+               status,
+               name,
+               catalogue_id,
+               pic_number as count,
+               create_time
+        from t_catalogue
+        where parent_id = #{parentId}
+          and status = 1
+    </select>
+    <select id="selectPicTables" parameterType="Long" resultMap="PicTableResult"
+    >
+        select id,
+               file_id,
+               catalogue_id,
+               file_path,
+               file_url,
+               status,
+               type,
+               size,
+               width,
+               height,
+               create_time
+        from t_file
+        where catalogue_id = #{catalogueId}
+          and status = 1
+    </select>
+    <delete id="deleteCatalogue" parameterType="Long">
+        update t_catalogue
+        set status      = 0,
+            delete_time = sysdate()
+        where catalogue_id = #{catalogueId}
+          and status = 1
+    </delete>
+</mapper>

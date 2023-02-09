@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscyun.Oss.mapper.UserMapper">
+    <resultMap id="UserResult" type="com.zscyun.Oss.entity.User">
+        <result property="userId" column="user_id"/>
+        <result property="openId" column="open_id"/>
+        <result property="nickName" column="nick_name"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="uploadNumber" column="upload_number"/>
+        <result property="downloadNumber" column="download_number"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <insert id="insertUser" parameterType="com.zscyun.Oss.entity.User">
+        insert into t_user(user_id, open_id, nick_name, avatar_url, username, password, upload_number, download_number,
+                           create_time)
+        values (#{userId}, #{openId}, #{nickName}, #{avatarUrl}, #{username}, #{password}, 0, 0, sysdate())
+    </insert>
+    <select id="selectUserByOpenId" parameterType="String" resultMap="UserResult">
+        select *
+        from t_user
+        where open_id = #{
+        openId
+        }
+    </select>
+    <select id="selectUserByUserAndPsw" parameterType="Map" resultMap="UserResult">
+        select *
+        from t_user
+        where username = #{username}
+          and password = #{password}
+    </select>
+    <select id="selectUserByUserId" parameterType="Long" resultMap="UserResult">
+        select *
+        from t_user
+        where user_id = #{userId}
+    </select>
+    <update id="updateUser" parameterType="com.zscyun.Oss.entity.User"
+    >
+        update t_user
+        <set>
+            <if test="nickName != null and nickName != ''">nick_name = #{nickName},</if>
+            <if test="avatarUrl != null and avatarUrl != ''">avatar_url = #{avatarUrl},</if>
+            <if test="username != null and username != ''">username = #{username},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="uploadNumber != null and uploadNumber != ''">upload_number = #{uploadNumber},</if>
+            <if test="downloadNumber != null and downloadNumber != ''">download_number = #{downloadNumber}</if>
+        </set>
+        where user_id = #{
+        userId
+        }
+    </update>
+</mapper>
+

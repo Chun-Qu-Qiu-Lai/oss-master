@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscyun.Oss.mapper.OssMapper">
+    <resultMap id="FileResult" type="com.zscyun.Oss.entity.Picture">
+        <result property="id" column="id"/>
+        <result property="fileId" column="file_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="catalogueId" column="catalogue_id"/>
+        <result property="fileName" column="file_name"/>
+        <result property="filePath" column="file_path"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="type" column="type"/>
+        <result property="size" column="size"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="update_time"/>
+    </resultMap>
+    <select id="selectFilesById" parameterType="Integer" resultMap="FileResult">
+        select *
+        from t_file
+        where id = #{id}
+          and status = 1
+        order by create_time desc
+    </select>
+    <insert id="insertFile" parameterType="com.zscyun.Oss.entity.Picture">
+        insert into t_file (file_id, user_id, catalogue_id, file_name, file_path, file_url, status, type, size, width,
+                            height,
+                            create_time)
+        VALUES (#{fileId}, #{userId}, #{catalogueId}, #{fileName}, #{filePath}, #{fileUrl}, #{status}, #{type}, #{size},
+                #{width},
+                #{height},
+                sysdate())
+    </insert>
+    <select id="selectFilesByCatalogueId" parameterType="Long" resultMap="FileResult">
+        select *
+        from t_file
+        where catalogue_id = #{catalogueId}
+          and status = 1
+        order by create_time desc
+    </select>
+    <delete id="deleteFileByFilePath" parameterType="String">
+        update t_file
+        set status=0,
+            delete_time=sysdate()
+        where file_path = #{filePath}
+    </delete>
+    <delete id="deleteFileByCatalogueId" parameterType="Long">
+        update t_file
+        set status=0,
+            delete_time=sysdate()
+        where catalogue_id = #{catalogueId}
+          and status = 1
+    </delete>
+</mapper>
+

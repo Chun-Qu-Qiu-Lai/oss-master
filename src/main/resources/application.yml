@@ -1,0 +1,42 @@
+server:
+  port: 5206
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.93.50.126:3306/album-oss?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
+    username: albumOss
+    password: albumOss724318787
+  redis:
+    database: 5
+    host: localhost
+    port: 6379
+    password: redis724318787
+    jedis:
+      pool:
+        max-active: 200
+        max-wait: -1
+        max-idle: 10
+        min-idle: 0
+      timeout: 6000
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+
+aliyun:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    accessKeyId: LTAI5tNaT4y5Ta2YVh6YpU82
+    accessKeySecret: dPD0WeW8ubKs6IDvjtCqdRTl9iIcuf
+    bucketName: oss-zscyun
+    policy:
+      expire: 300
+    maxSize: 10
+    host: https://oss-zscyun.oss-cn-beijing.aliyuncs.com
+    temporary: temporary/
+    callbackUrl: http://localhost:8080/oss/callback
