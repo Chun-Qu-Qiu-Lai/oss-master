@@ -153,7 +153,6 @@ public class OssServiceImpl implements OssService {
       style += ",x_" + 10;
       style += ",y_" + 10;
     }
-    System.out.println(style);
     UuidSnowflake.SnowflakeDistributeId idWorker = new UuidSnowflake.SnowflakeDistributeId(0, 0);
     long uuid = idWorker.nextId();
     String newFilePath = aliyunOssTemporary + uuid + Constants.FILE_SUFFIX_PNG;
