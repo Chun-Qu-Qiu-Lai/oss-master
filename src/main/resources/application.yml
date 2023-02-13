@@ -4,9 +4,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://47.93.50.126:3306/album-oss?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
-    username: albumOss
-    password: albumOss724318787
+    url: jdbc:mysql://47.113.219.136:3306/oss?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8
+    username: oss
+    password: oss724318787
   redis:
     database: 5
     host: localhost

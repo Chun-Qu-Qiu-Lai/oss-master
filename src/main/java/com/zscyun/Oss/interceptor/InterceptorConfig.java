@@ -19,7 +19,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     String[] addPathPatternsByToken = {
-            "/user/updateUserInfo",
+
     };
     registry.addInterceptor(userInterceptor).addPathPatterns(addPathPatternsByToken);
   }
