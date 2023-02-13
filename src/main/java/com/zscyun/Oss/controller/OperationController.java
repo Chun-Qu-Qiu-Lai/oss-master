@@ -22,7 +22,6 @@ import java.util.Map;
  * @author 蛋炒饭不加蛋
  * @date 2023/1/30
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/operation")
 public class OperationController {

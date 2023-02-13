@@ -21,7 +21,6 @@ import java.util.List;
  * @author 蛋炒饭不加蛋
  * @date 2022/11/27
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/oss")
 public class OssController {
@@ -70,7 +69,6 @@ public class OssController {
    * @param idList           文件id
    * @return Result
    */
-  @CrossOrigin
   @PostMapping("/removeFiles/{idList}")
   public Result removeFiles(@RequestHeader("Authorization") String authorizationJwt,
                             @PathVariable Integer[] idList) {
@@ -184,7 +182,6 @@ public class OssController {
     }
   }
 
-  @CrossOrigin
   @PostMapping("/editFile")
   private Result editFile(@RequestBody PictureHandleForm pictureHandleForm) throws UnsupportedEncodingException {
     String s = ossService.updateFile(pictureHandleForm);

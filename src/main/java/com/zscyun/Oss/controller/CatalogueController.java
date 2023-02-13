@@ -20,7 +20,6 @@ import java.util.List;
  * @author 蛋炒饭不加蛋
  * @date 2023/1/6
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/catalogue")
 public class CatalogueController {

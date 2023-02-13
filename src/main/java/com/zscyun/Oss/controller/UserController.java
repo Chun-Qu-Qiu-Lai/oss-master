@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
  * @author 蛋炒饭不加蛋
  * @date 2022/12/16
  */
-@CrossOrigin
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -42,7 +41,6 @@ public class UserController {
    * @param loginUser 登录表单
    * @return Result
    */
-  @CrossOrigin
   @PostMapping("/applet/authorization")
   private Result authorization(@RequestBody LoginUser loginUser) {
     if (StringUtils.isEmpty(loginUser.getCode())) {
@@ -208,7 +206,7 @@ public class UserController {
    * @param password
    * @return
    */
-  @CrossOrigin
+
   @PostMapping("/admin/login")
   public Result adminLogin(@RequestParam("username") String username,
                            @RequestParam("password") String password) {
