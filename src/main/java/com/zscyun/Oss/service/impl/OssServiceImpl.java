@@ -317,7 +317,7 @@ public class OssServiceImpl implements OssService {
       String signature = ossConfig.ossClient().calculatePostSignature(postPolicy);
       //回调
       OssCallbackParam callback = new OssCallbackParam();
-      callback.setCallbackUrl("http://47.93.50.126:5206/oss/callback");
+      callback.setCallbackUrl("http://47.113.219.136:5206/oss/callback");
       callback.setCallbackBody("filename=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}");
       callback.setCallbackBodyType("application/x-www-form-urlencoded");
       String callbackData = BinaryUtil.toBase64String(JSONUtil.parse(callback).toString().getBytes(StandardCharsets.UTF_8));
