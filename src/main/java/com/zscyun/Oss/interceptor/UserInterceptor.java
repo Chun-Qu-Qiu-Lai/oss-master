@@ -28,7 +28,6 @@ public class UserInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 //    需要token
     String authorizationJwt = request.getHeader("Authorization");
-    System.out.println("发现请求");
 //    if (StringUtils.isEmpty(authorizationJwt)) {
 //      return false;
 //    }

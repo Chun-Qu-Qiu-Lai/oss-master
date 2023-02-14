@@ -210,7 +210,6 @@ public class UserController {
   @PostMapping("/admin/login")
   public Result adminLogin(@RequestParam("username") String username,
                            @RequestParam("password") String password) {
-    System.out.println("请求成功");
     if (StringUtils.isEmpty(username)) {
       throw new ServiceException("用户名为空", HttpStatus.BAD_REQUEST);
     }
