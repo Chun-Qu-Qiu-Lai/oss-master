@@ -182,10 +182,33 @@ public class OssController {
     }
   }
 
+  /**
+   * 处理图片
+   *
+   * @param pictureHandleForm 表单参数
+   * @return
+   */
   @PostMapping("/editFile")
-  private Result editFile(@RequestBody PictureHandleForm pictureHandleForm) throws UnsupportedEncodingException {
+  private Result editFile(@RequestBody PictureHandleForm pictureHandleForm) {
     String s = ossService.updateFile(pictureHandleForm);
     return Result.success(ResultStatus.HTTP_STATUS_200, s);
   }
 
+  /**
+   * 获取所有图片
+   *
+   * @param authorizationJwt token
+   * @return 结果
+   */
+  @GetMapping("/admin/getFileList")
+  private Result getFileList(@RequestHeader("Authorization") String authorizationJwt) {
+    String token = authorizationJwt.substring(6);
+    String openid = JwtUtil.parseToken(token);
+    User user = userMapper.selectUserByOpenId(openid);
+    if (StringUtils.isNull(user)) {
+      throw new ServiceException("用户未授权", HttpStatus.UNAUTHORIZED);
+    }
+    List<Picture> pictures = ossService.selectFileList(user.getUserId());
+    return Result.success(ResultStatus.HTTP_STATUS_200, pictures);
+  }
 }

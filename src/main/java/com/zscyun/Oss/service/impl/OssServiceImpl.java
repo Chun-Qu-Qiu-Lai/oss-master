@@ -429,6 +429,18 @@ public class OssServiceImpl implements OssService {
     return row;
   }
 
+  /**
+   * 查询所有图片
+   *
+   * @param userId 用户id
+   * @return 结果
+   */
+  @Override
+  public List<Picture> selectFileList(Long userId) {
+    List<Picture> pictures = ossMapper.selectFileList(userId);
+    return pictures;
+  }
+
 
 }
 

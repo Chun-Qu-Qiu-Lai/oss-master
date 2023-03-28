@@ -26,6 +26,13 @@
           and status = 1
         order by create_time desc
     </select>
+    <select id="selectFileList" parameterType="Long" resultMap="FileResult">
+        select *
+        from t_file
+        where user_id = #{userId}
+          and status = 1
+        order by create_time desc
+    </select>
     <insert id="insertFile" parameterType="com.zscyun.Oss.entity.Picture">
         insert into t_file (file_id, user_id, catalogue_id, file_name, file_path, file_url, status, type, size, width,
                             height,

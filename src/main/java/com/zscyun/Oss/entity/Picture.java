@@ -1,5 +1,7 @@
 package com.zscyun.Oss.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -26,6 +28,7 @@ public class Picture implements Serializable {
    * 1正常 0已删除
    */
   private Integer status;
+  @JsonFormat(pattern = "yyyy-MM-dd")
   private Date createTime;
   private Date deleteTime;
 

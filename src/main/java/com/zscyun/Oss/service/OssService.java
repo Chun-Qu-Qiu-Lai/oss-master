@@ -70,4 +70,11 @@ public interface OssService {
    */
   public int downloadFile(String openId, Long fileId, Long userId);
 
+  /**
+   * 获取所有图片
+   *
+   * @param userId 用户id
+   * @return 结果
+   */
+  public List<Picture> selectFileList(Long userId);
 }

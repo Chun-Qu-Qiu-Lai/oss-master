@@ -50,4 +50,12 @@ public interface OssMapper {
    * @return row
    */
   public int deleteFileByCatalogueId(Long catalogueId);
+
+  /**
+   * 获取所有图片
+   *
+   * @param userId 用户id
+   * @return 结果
+   */
+  public List<Picture> selectFileList(Long userId);
 }
