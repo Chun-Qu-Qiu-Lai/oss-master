@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zscyun.Oss.mapper.TokenMapper">
+    <resultMap id="TokenResult" type="com.zscyun.Oss.entity.Token">
+        <result property="tokenId" column="token_id"/>
+        <result property="tokenValue" column="token_value"/>
+        <result property="tokenName" column="token_name"/>
+        <result property="userId" column="user_id"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="deleteTime" column="update_time"/>
+    </resultMap>
+    <select id="selectTokens" parameterType="Long" resultMap="TokenResult">
+        select *
+        from t_token
+        where user_id = #{userId}
+          and status = 1
+    </select>
+    <insert id="createToken" parameterType="com.zscyun.Oss.entity.Token">
+        insert into t_token (token_name, token_value, user_id, status, create_time)
+        VALUES (#{tokenName}, #{tokenValue}, #{userId}, #{status}, sysdate())
+    </insert>
+
+    <delete id="deleteToken" parameterType="Integer">
+        update t_token
+        set status=0,
+            delete_time=sysdate()
+        where token_id = #{tokenId}
+          and status = 1
+    </delete>
+</mapper>
+

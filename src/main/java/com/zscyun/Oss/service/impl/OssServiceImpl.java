@@ -13,28 +13,28 @@ import com.zscyun.Oss.constant.Constants;
 import com.zscyun.Oss.constant.HttpStatus;
 import com.zscyun.Oss.entity.*;
 import com.zscyun.Oss.exception.ServiceException;
-import com.zscyun.Oss.mapper.CatalogueMapper;
-import com.zscyun.Oss.mapper.OperationMapper;
-import com.zscyun.Oss.mapper.OssMapper;
-import com.zscyun.Oss.mapper.UserMapper;
+import com.zscyun.Oss.mapper.*;
 import com.zscyun.Oss.service.OssService;
 import com.zscyun.Oss.utils.UuidSnowflake;
 import com.zscyun.Oss.utils.StringUtils;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-
-import java.io.File;
 
 /**
  * 文件 业务层处理
@@ -57,6 +57,9 @@ public class OssServiceImpl implements OssService {
 
   @Autowired
   private OperationMapper operationMapper;
+
+  @Autowired
+  private TokenMapper tokenMapper;
 
   @Autowired
   private CatalogueMapper catalogueMapper;
@@ -439,6 +442,132 @@ public class OssServiceImpl implements OssService {
   public List<Picture> selectFileList(Long userId) {
     List<Picture> pictures = ossMapper.selectFileList(userId);
     return pictures;
+  }
+
+  /**
+   * 创建token
+   *
+   * @param userId id
+   * @return 结果
+   */
+  @Override
+  public int createToken(Long userId, String tokenName) {
+    Token token = new Token();
+    token.setTokenName(tokenName);
+    HashMap<String, Object> mapClaim = new HashMap<>();
+    mapClaim.put("userId", userId);
+    //    无过期时间
+    JwtBuilder jwtBuilder = Jwts.builder()
+            .setIssuedAt(new Date())
+            .signWith(SignatureAlgorithm.HS256, Constants.JWT_TOKEN_KEY)
+            .addClaims(mapClaim);
+    String tokenValue = jwtBuilder.compact();
+    token.setStatus(1);
+    token.setTokenValue(tokenValue);
+    token.setUserId(userId);
+    int row = tokenMapper.createToken(token);
+    return row;
+  }
+
+  /**
+   * 查询所有token
+   *
+   * @param userId 用户id
+   * @return 结果
+   */
+  @Override
+  public List<Token> selectTokens(Long userId) {
+    List<Token> tokens = tokenMapper.selectTokens(userId);
+    return tokens;
+  }
+
+  /**
+   * 删除token
+   *
+   * @param tokenId tokenId
+   * @return 结果
+   */
+  @Override
+  public int deleteToken(Integer tokenId) {
+    int row = tokenMapper.deleteToken(tokenId);
+    return row;
+  }
+
+  /**
+   * 为外界提供api接口
+   *
+   * @param userId
+   * @param
+   * @return
+   */
+  @Override
+  public String uploadApi(Long userId, MultipartFile imgFile) {
+    List<Catalogue> catalogues = catalogueMapper.selectCatalogues(userId);
+    Long catalogueId = null;
+    String dir = "";
+    if (catalogues != null && !catalogues.isEmpty()) {
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+      String createTime = sdf.format(new Date());
+      catalogueId = catalogues.get(0).getCatalogueId();
+      OSS ossClient = ossConfig.ossClient();
+      UuidSnowflake.SnowflakeDistributeId idWorker = new UuidSnowflake.SnowflakeDistributeId(0, 0);
+      long uuid = idWorker.nextId();
+      dir = userId + "/" + catalogueId + "/" + uuid + createTime + Constants.FILE_SUFFIX_PNG;
+      try {
+        InputStream inputStream = imgFile.getInputStream();
+        // 创建PutObjectRequest对象。
+        PutObjectRequest putObjectRequest = new PutObjectRequest(aliyunOssBucketName, dir, inputStream);
+        // 设置该属性可以返回response。如果不设置，则返回的response为空。
+        putObjectRequest.setProcess("true");
+        // 创建PutObject请求。
+        PutObjectResult result = ossClient.putObject(putObjectRequest);
+        // 如果上传成功，则返回200。
+        System.out.println(result.getResponse().getStatusCode());
+        Picture picture = new Picture();
+        picture.setFileId(uuid);
+        picture.setUserId(userId);
+        picture.setCatalogueId(catalogueId);
+        picture.setFileName(uuid + createTime + Constants.FILE_SUFFIX_PNG);
+        picture.setFilePath(dir);
+        picture.setFileUrl(aliyunOssHost + "/" + dir);
+        picture.setStatus(1);
+        picture.setType("image/png");
+        picture.setSize((int) imgFile.getSize());
+        File files = File.createTempFile("temp", null);
+        // 把multipartFile写入临时文件
+        imgFile.transferTo(files);
+        BufferedImage bufferedImage = ImageIO.read(Files.newInputStream(files.toPath()));
+        // 最后记得删除文件
+        files.deleteOnExit();
+        // 关闭流
+        inputStream.close();
+        // 宽度
+        int width = bufferedImage.getWidth();
+        // 高度
+        int height = bufferedImage.getHeight();
+        picture.setWidth(width);
+        picture.setHeight(height);
+
+        int row = ossMapper.insertFile(picture);
+      } catch (OSSException oe) {
+        System.out.println("Caught an OSSException, which means your request made it to OSS, "
+                + "but was rejected with an error response for some reason.");
+        System.out.println("Error Message:" + oe.getErrorMessage());
+        System.out.println("Error Code:" + oe.getErrorCode());
+        System.out.println("Request ID:" + oe.getRequestId());
+        System.out.println("Host ID:" + oe.getHostId());
+      } catch (ClientException ce) {
+        System.out.println("Caught an ClientException, which means the client encountered "
+                + "a serious internal problem while trying to communicate with OSS, "
+                + "such as not being able to access the network.");
+        System.out.println("Error Message:" + ce.getMessage());
+      } catch (IOException e) {
+        throw new ServiceException("失败", 400);
+      }
+    } else {
+      throw new ServiceException("相册为空请先创建相册", HttpStatus.NOT_MODIFIED);
+    }
+    return aliyunOssHost + "/" + dir;
   }
 
 

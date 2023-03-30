@@ -1,6 +1,7 @@
 package com.zscyun.Oss.mapper;
 
 import com.zscyun.Oss.entity.Picture;
+import com.zscyun.Oss.entity.Token;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -58,4 +59,6 @@ public interface OssMapper {
    * @return 结果
    */
   public List<Picture> selectFileList(Long userId);
+
+
 }

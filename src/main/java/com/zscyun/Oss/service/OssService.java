@@ -1,9 +1,7 @@
 package com.zscyun.Oss.service;
 
-import com.zscyun.Oss.entity.Picture;
-import com.zscyun.Oss.entity.OssCallbackResult;
-import com.zscyun.Oss.entity.OssPolicyResult;
-import com.zscyun.Oss.entity.PictureHandleForm;
+import com.zscyun.Oss.entity.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -77,4 +75,36 @@ public interface OssService {
    * @return 结果
    */
   public List<Picture> selectFileList(Long userId);
+
+  /**
+   * @param userId    userid
+   * @param tokenName
+   * @return
+   */
+  public int createToken(Long userId, String tokenName);
+
+  /**
+   * 查询所有token
+   *
+   * @param userId 用户id
+   * @return 结果
+   */
+  public List<Token> selectTokens(Long userId);
+
+  /**
+   * 删除token
+   *
+   * @param tokenId tokenId
+   * @return 结果
+   */
+  public int deleteToken(Integer tokenId);
+
+  /**
+   * 为外界提供api接口
+   *
+   * @param userId
+   * @param multipartFile
+   * @return
+   */
+  public String uploadApi(Long userId, MultipartFile multipartFile);
 }

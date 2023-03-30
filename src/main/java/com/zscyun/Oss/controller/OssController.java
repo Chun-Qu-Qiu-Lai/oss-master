@@ -1,5 +1,6 @@
 package com.zscyun.Oss.controller;
 
+import com.zscyun.Oss.constant.Constants;
 import com.zscyun.Oss.constant.HttpStatus;
 import com.zscyun.Oss.entity.*;
 import com.zscyun.Oss.exception.ServiceException;
@@ -8,11 +9,13 @@ import com.zscyun.Oss.service.impl.CatalogueServiceImpl;
 import com.zscyun.Oss.service.impl.OssServiceImpl;
 import com.zscyun.Oss.utils.JwtUtil;
 import com.zscyun.Oss.utils.StringUtils;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -78,8 +81,8 @@ public class OssController {
     if (StringUtils.isNull(user)) {
       throw new ServiceException("用户未授权", HttpStatus.UNAUTHORIZED);
     }
-    ossService.deleteFiles(idList, user.getUserId());
-    if (1 > 0) {
+    int row = ossService.deleteFiles(idList, user.getUserId());
+    if (row > 0) {
       return Result.success();
     } else {
       return Result.fail();
@@ -211,4 +214,97 @@ public class OssController {
     List<Picture> pictures = ossService.selectFileList(user.getUserId());
     return Result.success(ResultStatus.HTTP_STATUS_200, pictures);
   }
+
+  /**
+   * 创建token
+   *
+   * @param authorizationJwt
+   * @return
+   */
+  @PostMapping("/admin/addToken")
+  private Result addToken(@RequestHeader("Authorization") String authorizationJwt,
+                          @RequestParam("tokenName") String tokenName) {
+    String token = authorizationJwt.substring(6);
+    String openid = JwtUtil.parseToken(token);
+    User user = userMapper.selectUserByOpenId(openid);
+    if (StringUtils.isNull(user)) {
+      throw new ServiceException("用户未授权", HttpStatus.UNAUTHORIZED);
+    }
+    if (StringUtils.isEmpty(tokenName)) {
+      throw new ServiceException("token名称为空", HttpStatus.BAD_REQUEST);
+    }
+    int row = ossService.createToken(user.getUserId(), tokenName);
+
+    if (row > 0) {
+      return Result.success();
+    } else {
+      return Result.fail();
+    }
+  }
+
+  /**
+   * 删除token
+   *
+   * @param authorizationJwt
+   * @param tokenId
+   * @return
+   */
+  @PostMapping("/admin/removeToken")
+  private Result removeToken(@RequestHeader("Authorization") String authorizationJwt,
+                             @RequestParam("tokenId") Integer tokenId) {
+    String token = authorizationJwt.substring(6);
+    String openid = JwtUtil.parseToken(token);
+    User user = userMapper.selectUserByOpenId(openid);
+    if (StringUtils.isNull(user)) {
+      throw new ServiceException("用户未授权", HttpStatus.UNAUTHORIZED);
+    }
+    int row = ossService.deleteToken(tokenId);
+    if (row > 0) {
+      return Result.success();
+    } else {
+      return Result.fail();
+    }
+  }
+
+  /**
+   * 查询所有token
+   *
+   * @param authorizationJwt
+   * @return 结果
+   */
+  @GetMapping("/admin/getTokens")
+  private Result getTokens(@RequestHeader("Authorization") String authorizationJwt) {
+    String token = authorizationJwt.substring(6);
+    String openid = JwtUtil.parseToken(token);
+    User user = userMapper.selectUserByOpenId(openid);
+    if (StringUtils.isNull(user)) {
+      throw new ServiceException("用户未授权", HttpStatus.UNAUTHORIZED);
+    }
+    List<Token> tokens = ossService.selectTokens(user.getUserId());
+    return Result.success(ResultStatus.HTTP_STATUS_200, tokens);
+  }
+
+  /**
+   * 为外界提供上传接口，随机相册
+   *
+   * @param
+   * @param
+   * @return
+   */
+  @PostMapping("/admin/token/upload")
+  private Result apiUpload(@RequestHeader("Authorization") String token,
+                           @RequestParam("imgFile") MultipartFile imgFile) {
+    Claims claims = Jwts.parser()
+            .setSigningKey(Constants.JWT_TOKEN_KEY)
+            .parseClaimsJws(token)
+            .getBody();
+    Long userId = (Long) claims.get("userId");
+    if (StringUtils.isNull(userId)) {
+      throw new ServiceException("用户未授权", HttpStatus.UNAUTHORIZED);
+    }
+    String url = ossService.uploadApi(userId, imgFile);
+    return Result.success(ResultStatus.HTTP_STATUS_200, url);
+  }
+
+
 }
